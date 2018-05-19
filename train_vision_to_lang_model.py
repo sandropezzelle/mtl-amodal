@@ -145,7 +145,7 @@ if __name__ == '__main__':
     batch_size = 32
     embeddings = '/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt'
     vision_weights = "/mnt/povobackup/clic/sandro.pezzelle/model_weights_correct/multitask-prop-weights-sgdlr05-correct.hdf5"
-    lang_weights = "vision_to_lang_model/best-weight-model.hdf5"
+    lang_weights = "best_vision_to_lang_model/best-weight-model.hdf5"
 
     for n, dtp in enumerate(tr_inp):
         pad = np.zeros((25, 50))

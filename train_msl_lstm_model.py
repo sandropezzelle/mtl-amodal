@@ -145,7 +145,7 @@ if __name__ == '__main__':
     learning_rate = 0.001
     batch_size = 32
     embeddings = '/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt'
-    weights = "msl_lstm_model/best-weight-model.hdf5"
+    weights = "best_msl_lstm_model/best-weight-model.hdf5"
 
     for n, dtp in enumerate(tr_inp):
         pad = np.zeros((25, 50))
