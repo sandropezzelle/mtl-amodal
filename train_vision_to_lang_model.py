@@ -15,13 +15,13 @@ r_dict = {}
 
 
 def load_people(target_index, non_target_index):
-    targ = data_path + '1900_133.txt'
-    ntarg = data_path + '1700_133.txt'
+    target = data_path + '1900_133.txt'
+    non_target = data_path + '1700_133.txt'
 
-    with open(targ, 'r') as targx:
+    with open(target, 'r') as targx:
         reader = [line.split('\t')[3] for line in targx]
 
-    with open(ntarg, 'r') as ntargx:
+    with open(non_target, 'r') as ntargx:
         nreader = [line.split('\t')[3] for line in ntargx]
 
     people = []
