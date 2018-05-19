@@ -14,7 +14,7 @@ class MultitaskLangModel:
         """
         self._embeddings = embeddings
         self._token2id = token2id
-        self._dim_emb = emb_dim
+        self._emb_dim = emb_dim
         self._input_shape = input_shape
         self._act_f = act_f
         self._dropout = dropout
@@ -45,19 +45,19 @@ class MultitaskLangModel:
                 coefs = np.asarray(values[1:], dtype='float32')
                 embeddings_index[word] = coefs
 
-        embedding_matrix = np.zeros((len(self._token2id) + 1, self._dim_emb))
+        embedding_matrix = np.zeros((len(self._token2id) + 1, self._emb_dim))
         for word, i in self._token2id.items():
             embedding_vector = embeddings_index.get(word)
             if embedding_vector is not None:
                 embedding_matrix[i] = embedding_vector
 
         inp = Input(self._input_shape, name='lang_input')
-        emb_mod = Embedding(len(self._token2id) + 1, self._dim_emb, weights=[embedding_matrix], trainable=False)
+        emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, weights=[embedding_matrix], trainable=False)
         lstm_mod = LSTM(2048, activation=self._act_f)
 
         inp_res = Reshape((25 * 50,))(inp)
         emb_out = emb_mod(inp_res)
-        res_emb = Reshape((25, 50, self._dim_emb))(emb_out)
+        res_emb = Reshape((25, 50, self._emb_dim))(emb_out)
         td_lstm = TimeDistributed(lstm_mod)
         res_td_lstm = td_lstm(res_emb)
 

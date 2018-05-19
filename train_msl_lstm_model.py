@@ -5,8 +5,9 @@ import numpy as np
 from keras.callbacks import ModelCheckpoint
 from keras.preprocessing.sequence import pad_sequences
 
-import multitask_lang_model
-import multitask_vision_model
+import model
+
+import msl_lstm_model
 import utils
 
 data_path = ''
@@ -144,8 +145,7 @@ if __name__ == '__main__':
     learning_rate = 0.001
     batch_size = 32
     embeddings = '/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt'
-    vision_weights = "/mnt/povobackup/clic/sandro.pezzelle/model_weights_correct/multitask-prop-weights-sgdlr05-correct.hdf5"
-    lang_weights = "vision_to_lang_model/best-weight-model.hdf5"
+    weights = "msl_lstm_model/best-weight-model.hdf5"
 
     for n, dtp in enumerate(tr_inp):
         pad = np.zeros((25, 50))
@@ -198,24 +198,18 @@ if __name__ == '__main__':
             dataset_t.append(authors)
     dataset_t = np.array(dataset_t)
 
-    vision_model = multitask_vision_model.MultitaskVisionModel().build()
-    vision_model.load_weights(vision_weights)
-    lang_model = multitask_lang_model.MultitaskLangModel(embeddings, token2id).build()
+    model = msl_lstm_model.MSLLSTMModel(embeddings, token2id).build()
 
-    for lvis, llang in zip(vision_model.layers[3:], lang_model.layers[7:]):
-        llang.set_weights(lvis.get_weights())
-        llang.trainable = False
-
-    checkpoint = ModelCheckpoint(lang_weights, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-    hist = lang_model.fit(
+    checkpoint = ModelCheckpoint(weights, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+    hist = model.fit(
         dataset_tr,
-        [tr_m_out, tr_q_out, tr_r_out],
+        tr_m_out,
         batch_size=batch_size,
         epochs=num_epochs,
-        validation_data=(dataset_v, [v_m_out, v_q_out, v_r_out]),
+        validation_data=(dataset_v, v_m_out),
         callbacks=[checkpoint]
     )
 
-    best_lang_model = lang_model.MultitaskLangModel(embeddings, token2id).build()
-    best_lang_model.load_weights(lang_weights)
-    print(best_lang_model.evaluate(dataset_t, [t_m_out, t_q_out, t_r_out], batch_size=batch_size))
+    best_model = model.MultitaskLangModel(embeddings, token2id).build()
+    best_model.load_weights(weights)
+    print(best_model.evaluate(dataset_t, t_m_out, batch_size=batch_size))
