@@ -5,8 +5,6 @@ import numpy as np
 from keras.callbacks import ModelCheckpoint
 from keras.preprocessing.sequence import pad_sequences
 
-import model
-
 import msl_lstm_model
 import utils
 
