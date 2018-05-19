@@ -208,6 +208,6 @@ if __name__ == '__main__':
         callbacks=[checkpoint]
     )
 
-    best_model = model.MultitaskLangModel(embeddings, token2id).build()
+    best_model = msl_lstm_model.MSLLSTMModel(embeddings, token2id).build()
     best_model.load_weights(weights)
     print(best_model.evaluate(dataset_t, t_m_out, batch_size=batch_size))
