@@ -64,7 +64,7 @@ class PropLSTMModel:
         prop_flat = Flatten()(res_td_lstm)
         hidden_prop = Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f, name='msl')(prop_flat)
         drop_hidden_prop = Dropout(self._dropout)(hidden_prop)
-        out_prop = Dense(self._prop_classes, activation='softmax', name='pred2')(drop_hidden_prop)
+        out_prop = Dense(self._prop_classes, activation='softmax', name='pred3')(drop_hidden_prop)
 
         model = Model(input=inp, output=out_prop)
         model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
