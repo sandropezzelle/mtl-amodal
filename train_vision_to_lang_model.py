@@ -1,3 +1,4 @@
+import pickle
 import sys
 from random import shuffle
 
@@ -198,6 +199,9 @@ if __name__ == '__main__':
             dataset_t.append(authors)
     dataset_t = np.array(dataset_t)
 
+    with open(lang_weights + ".index.pkl", mode="wb") as out_file:
+        pickle.dump({"token2id": token2id, "id2token": id2token}, out_file)
+
     vision_model = multitask_vision_model.MultitaskVisionModel().build()
     vision_model.load_weights(vision_weights)
     lang_model = multitask_lang_model.MultitaskLangModel(embeddings, token2id).build()
@@ -216,6 +220,6 @@ if __name__ == '__main__':
         callbacks=[checkpoint]
     )
 
-    best_lang_model = lang_model.MultitaskLangModel(embeddings, token2id).build()
+    best_lang_model = multitask_lang_model.MultitaskLangModel(embeddings, token2id).build()
     best_lang_model.load_weights(lang_weights)
     print(best_lang_model.evaluate(dataset_t, [t_m_out, t_q_out, t_r_out], batch_size=batch_size))
