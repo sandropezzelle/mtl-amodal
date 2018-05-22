@@ -132,7 +132,6 @@ if __name__ == '__main__':
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     vision_weights_filename = "/mnt/povobackup/clic/sandro.pezzelle/model_weights_correct/multitask-prop-weights-sgdlr05-correct.hdf5"
     lang_weights_filename = "best_models/vision_to_lang_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
-    predictions_filename = "best_models/vision_to_lang_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.predictions"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
