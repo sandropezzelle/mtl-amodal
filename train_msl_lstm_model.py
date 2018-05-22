@@ -39,17 +39,17 @@ if __name__ == "__main__":
 
     with open(os.path.join(args.preprocessed_dataset_path, "test.pkl"), mode="rb") as in_file:
         test = pickle.load(in_file)
-        dataset_t = train["dataset_t"]
-        t_m_out = train["t_m_out"]
-        t_q_out = train["t_q_out"]
-        t_r_out = train["t_r_out"]
+        dataset_t = test["dataset_t"]
+        t_m_out = test["t_m_out"]
+        t_q_out = test["t_q_out"]
+        t_r_out = test["t_r_out"]
 
     with open(os.path.join(args.preprocessed_dataset_path, "valid.pkl"), mode="rb") as in_file:
         valid = pickle.load(in_file)
-        dataset_v = train["dataset_v"]
-        v_m_out = train["v_m_out"]
-        v_q_out = train["v_q_out"]
-        v_r_out = train["v_r_out"]
+        dataset_v = valid["dataset_v"]
+        v_m_out = valid["v_m_out"]
+        v_q_out = valid["v_q_out"]
+        v_r_out = valid["v_r_out"]
 
     model = msl_lstm_model.MSLLSTMModel(embeddings_filename, token2id).build()
 
