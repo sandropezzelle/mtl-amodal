@@ -119,9 +119,9 @@ def create_ratio_dict(ratios):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("repository_path", type=str, required=True)
-    parser.add_argument("data_path", type=str, required=True)
-    parser.add_argument("output_path", type=str, required=True)
+    parser.add_argument("--repository_path", type=str, required=True)
+    parser.add_argument("--data_path", type=str, required=True)
+    parser.add_argument("--output_path", type=str, required=True)
     args = parser.parse_args()
 
     repository_path = args.repository_path
