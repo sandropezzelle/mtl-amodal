@@ -7,6 +7,7 @@ import numpy as np
 from keras.callbacks import ModelCheckpoint
 
 import msl_lstm_model
+from utils import MyModelCheckpoint
 
 if __name__ == "__main__":
     """
@@ -69,48 +70,6 @@ if __name__ == "__main__":
 
     model = msl_lstm_model.MSLLSTMModel(embedding_matrix, token2id).build()
 
-
-    class MyModelCheckpoint(ModelCheckpoint):
-        def __init__(self, *args, **kwargs):
-            super(MyModelCheckpoint, self).__init__(*args, **kwargs)
-
-        def on_epoch_end(self, epoch, logs=None):
-            logs = logs or {}
-            self.epochs_since_last_save += 1
-            if self.epochs_since_last_save >= self.period:
-                self.epochs_since_last_save = 0
-                filepath = self.filepath.format(epoch=epoch + 1, **logs)
-                self.filepath = filepath
-                if self.save_best_only:
-                    current = logs.get(self.monitor)
-                    if current is None:
-                        warnings.warn('Can save best model only with %s available, '
-                                      'skipping.' % (self.monitor), RuntimeWarning)
-                    else:
-                        if self.monitor_op(current, self.best):
-                            if self.verbose > 0:
-                                print('\nEpoch %05d: %s improved from %0.5f to %0.5f,'
-                                      ' saving model to %s'
-                                      % (epoch + 1, self.monitor, self.best,
-                                         current, filepath))
-                            self.best = current
-                            if self.save_weights_only:
-                                self.model.save_weights(filepath, overwrite=True)
-                            else:
-                                self.model.save(filepath, overwrite=True)
-                        else:
-                            if self.verbose > 0:
-                                print('\nEpoch %05d: %s did not improve' %
-                                      (epoch + 1, self.monitor))
-                else:
-                    if self.verbose > 0:
-                        print('\nEpoch %05d: saving model to %s' % (epoch + 1, filepath))
-                    if self.save_weights_only:
-                        self.model.save_weights(filepath, overwrite=True)
-                    else:
-                        self.model.save(filepath, overwrite=True)
-
-
     checkpoint = MyModelCheckpoint(weights_filename, monitor="val_loss", verbose=1, save_best_only=True, mode="min")
     hist = model.fit(
         dataset_tr,
@@ -120,9 +79,7 @@ if __name__ == "__main__":
         validation_data=(dataset_v, v_m_out),
         callbacks=[checkpoint]
     )
-    print(checkpoint.filepath)
-
     best_model = msl_lstm_model.MSLLSTMModel(embedding_matrix, token2id).build()
-    best_model.load_weights(weights_filename)
+    best_model.load_weights(checkpoint.last_saved_filename)
     scores = best_model.evaluate(dataset_t, t_m_out, batch_size=args.batch_size)
     print("%s: %.4f%%" % (model.metrics_names[1], scores[1] * 100))
