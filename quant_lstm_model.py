@@ -20,8 +20,6 @@ class QuantLSTMModel:
         self._act_f = act_f
         self._dropout = dropout
         self._l2_reg = l2_reg
-        self._more_classes = 3
-        self._prop_classes = 17
         self._q_classes = 9
 
     def build(self):

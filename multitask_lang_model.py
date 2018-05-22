@@ -8,11 +8,11 @@ import numpy as np
 
 
 class MultitaskLangModel:
-    def __init__(self, embeddings, token2id, emb_dim=300, input_shape=(25, 50), act_f='relu', dropout=0.5, l2_reg=1e-8, batch_size=32):
+    def __init__(self, embedding_matrix, token2id, emb_dim=300, input_shape=(25, 50), act_f='relu', dropout=0.5, l2_reg=1e-8, batch_size=32):
         """
         initialization of hyperparameters
         """
-        self._embeddings = embeddings
+        self._embedding_matrix = embedding_matrix
         self._token2id = token2id
         self._emb_dim = emb_dim
         self._input_shape = input_shape
@@ -37,22 +37,8 @@ class MultitaskLangModel:
         out_inc = model_inception(inp)
         out_res = Reshape((25,2048))(out_inc)
         """
-        embeddings_index = {}
-        with open(self._embeddings) as in_file:
-            for line in in_file:
-                values = line.split()
-                word = values[0]
-                coefs = np.asarray(values[1:], dtype='float32')
-                embeddings_index[word] = coefs
-
-        embedding_matrix = np.zeros((len(self._token2id) + 1, self._emb_dim))
-        for word, i in self._token2id.items():
-            embedding_vector = embeddings_index.get(word)
-            if embedding_vector is not None:
-                embedding_matrix[i] = embedding_vector
-
         inp = Input(self._input_shape, name='lang_input')
-        emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, weights=[embedding_matrix], trainable=False)
+        emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, weights=[self._embedding_matrix], trainable=False)
         lstm_mod = LSTM(2048, activation=self._act_f)
 
         inp_res = Reshape((25 * 50,))(inp)
