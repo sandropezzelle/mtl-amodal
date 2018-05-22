@@ -1,10 +1,8 @@
 import argparse
 import os
 import pickle
-import warnings
 
 import numpy as np
-from keras.callbacks import ModelCheckpoint
 
 import msl_lstm_model
 from utils import MyModelCheckpoint
@@ -19,7 +17,6 @@ if __name__ == "__main__":
     preprocessed_dataset_path = "lang_dataset/"
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     weights_filename = "best_models/msl_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
-    predictions_filename = "best_models/msl_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.predictions"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
@@ -28,11 +25,15 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=32)
     args = parser.parse_args()
 
-    with open(os.path.join(args.preprocessed_dataset_path, "index.pkl"), mode="rb") as in_file:
+    index_filename = os.path.join(args.preprocessed_dataset_path, "index.pkl")
+    print("Loading filename: {}".format(index_filename))
+    with open(index_filename, mode="rb") as in_file:
         index = pickle.load(in_file)
         token2id = index["token2id"]
         id2token = index["id2token"]
 
+    train_filename = os.path.join(args.preprocessed_dataset_path, "train.pkl")
+    print("Loading filename: {}".format(train_filename))
     with open(os.path.join(args.preprocessed_dataset_path, "train.pkl"), mode="rb") as in_file:
         train = pickle.load(in_file)
         dataset_tr = train["dataset_tr"]
@@ -40,6 +41,8 @@ if __name__ == "__main__":
         tr_q_out = train["tr_q_out"]
         tr_r_out = train["tr_r_out"]
 
+    test_filename = os.path.join(args.preprocessed_dataset_path, "test.pkl")
+    print("Loading filename: {}".format(test_filename))
     with open(os.path.join(args.preprocessed_dataset_path, "test.pkl"), mode="rb") as in_file:
         test = pickle.load(in_file)
         dataset_t = test["dataset_t"]
@@ -47,6 +50,8 @@ if __name__ == "__main__":
         t_q_out = test["t_q_out"]
         t_r_out = test["t_r_out"]
 
+    valid_filename = os.path.join(args.preprocessed_dataset_path, "valid.pkl")
+    print("Loading filename: {}".format(valid_filename))
     with open(os.path.join(args.preprocessed_dataset_path, "valid.pkl"), mode="rb") as in_file:
         valid = pickle.load(in_file)
         dataset_v = valid["dataset_v"]
@@ -54,6 +59,7 @@ if __name__ == "__main__":
         v_q_out = valid["v_q_out"]
         v_r_out = valid["v_r_out"]
 
+    print("Loading filename: {}".format(args.embeddings_filename))
     embeddings_index = {}
     with open(args.embeddings_filename) as in_file:
         for line in in_file:
@@ -68,8 +74,8 @@ if __name__ == "__main__":
         if embedding_vector is not None:
             embedding_matrix[i] = embedding_vector
 
+    print("Training model...")
     model = msl_lstm_model.MSLLSTMModel(embedding_matrix, token2id).build()
-
     checkpoint = MyModelCheckpoint(weights_filename, monitor="val_loss", verbose=1, save_best_only=True, mode="min")
     hist = model.fit(
         dataset_tr,
@@ -79,6 +85,8 @@ if __name__ == "__main__":
         validation_data=(dataset_v, v_m_out),
         callbacks=[checkpoint]
     )
+
+    print("Evaluating model...")
     best_model = msl_lstm_model.MSLLSTMModel(embedding_matrix, token2id).build()
     best_model.load_weights(checkpoint.last_saved_filename)
     scores = best_model.evaluate(dataset_t, t_m_out, batch_size=args.batch_size)
