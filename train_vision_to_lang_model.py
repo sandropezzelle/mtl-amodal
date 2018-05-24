@@ -192,7 +192,14 @@ if __name__ == '__main__':
     vision_model.load_weights(args.vision_weights_filename)
     lang_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id).build()
 
-    for lvis, llang in zip(vision_model.layers[3:], lang_model.layers[7:]):
+    print("vision_model")
+    print(vision_model.summary())
+
+    print("lang_model")
+    print(lang_model.summary())
+
+    for lvis, llang in zip(vision_model.layers[3:], lang_model.layers[6:]):
+        print(lvis, llang)
         llang.set_weights(lvis.get_weights())
         llang.trainable = False
 

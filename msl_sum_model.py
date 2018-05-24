@@ -1,11 +1,10 @@
+from keras import backend as K
 from keras.layers import Embedding
 from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers import Reshape
 from keras.layers.core import Lambda
-from keras.layers.wrappers import TimeDistributed
 from keras.models import Model
 from keras.regularizers import l2
-from keras import backend as K
 
 
 class MSLSumModel:
