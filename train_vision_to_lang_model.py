@@ -1,16 +1,13 @@
 import argparse
-import pickle
-import sys
-from random import shuffle
-from utils import MyModelCheckpoint
-import numpy as np
 import os
-from keras.callbacks import ModelCheckpoint
-from keras.preprocessing.sequence import pad_sequences
+import pickle
+from random import shuffle
+
+import numpy as np
 
 import multitask_lang_model
 import multitask_vision_model
-import utils
+from utils import MyModelCheckpoint
 
 data_path = ''
 ratios = {}

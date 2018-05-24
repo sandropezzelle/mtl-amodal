@@ -1,14 +1,16 @@
+from keras import backend as K
+from keras.layers import Embedding
 from keras.layers import Input, Dense, Flatten, Dropout
-from keras.layers import LSTM, Embedding
 from keras.layers import Reshape
+from keras.layers.core import Lambda
 from keras.layers.wrappers import TimeDistributed
 from keras.models import Model
 from keras.regularizers import l2
-import numpy as np
 
 
 class MultitaskLangModel:
-    def __init__(self, embedding_matrix, token2id, emb_dim=300, input_shape=(25, 50), act_f='relu', dropout=0.5, l2_reg=1e-8, batch_size=32):
+    def __init__(self, embedding_matrix, token2id, emb_dim=300, input_shape=(25, 50), act_f='relu', dropout=0.5,
+                 l2_reg=1e-8, batch_size=32):
         """
         initialization of hyperparameters
         """
@@ -39,17 +41,16 @@ class MultitaskLangModel:
         """
         inp = Input(self._input_shape, name='lang_input')
         emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, weights=[self._embedding_matrix], trainable=False)
-        lstm_mod = LSTM(2048, activation=self._act_f)
+        sum_dim1 = Lambda(lambda xin: K.sum(xin, axis=1))
 
         inp_res = Reshape((25 * 50,))(inp)
         emb_out = emb_mod(inp_res)
         res_emb = Reshape((25, 50, self._emb_dim))(emb_out)
-        td_lstm = TimeDistributed(lstm_mod)
-        res_td_lstm = td_lstm(res_emb)
+        res_sum_dim1 = sum_dim1(res_emb)
 
         td_dense0 = TimeDistributed(Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f))
         drop_td_dense0 = Dropout(self._dropout)
-        l_td_dense0 = td_dense0(res_td_lstm)
+        l_td_dense0 = td_dense0(res_sum_dim1)
         drop_l_td_dense0 = drop_td_dense0(l_td_dense0)
 
         td_dense = TimeDistributed(Dense(1024, W_regularizer=l2(self._l2_reg), activation=self._act_f))
