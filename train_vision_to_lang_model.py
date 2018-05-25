@@ -198,7 +198,7 @@ if __name__ == '__main__':
     print("lang_model")
     print(lang_model.summary())
 
-    for lvis, llang in zip(vision_model.layers[3:], lang_model.layers[5:]):
+    for lvis, llang in zip(vision_model.layers[3:], lang_model.layers[7:]):
         print(lvis, llang)
         llang.set_weights(lvis.get_weights())
         llang.trainable = False
