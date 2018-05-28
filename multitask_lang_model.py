@@ -1,4 +1,4 @@
-from keras import backend as K
+from keras import backend as K, optimizers
 from keras.layers import Embedding
 from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers import Reshape
@@ -109,6 +109,7 @@ class MultitaskLangModel:
                 llang.trainable = False
 
         model = Model(input=inp, output=[out_more, out_quant, out_prop])
-        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+        sgd = optimizers.SGD(lr=0.001)
+        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         return model
