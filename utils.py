@@ -45,7 +45,6 @@ class MyModelCheckpoint(ModelCheckpoint):
         if self.epochs_since_last_save >= self.period:
             self.epochs_since_last_save = 0
             filepath = self.filepath.format(epoch=epoch + 1, **logs)
-            self.last_saved_filename = filepath
             if self.save_best_only:
                 current = logs.get(self.monitor)
                 if current is None:
@@ -63,6 +62,7 @@ class MyModelCheckpoint(ModelCheckpoint):
                             self.model.save_weights(filepath, overwrite=True)
                         else:
                             self.model.save(filepath, overwrite=True)
+                        self.last_saved_filename = filepath
                     else:
                         if self.verbose > 0:
                             print('\nEpoch %05d: %s did not improve' %
