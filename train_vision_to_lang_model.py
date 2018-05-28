@@ -81,7 +81,7 @@ if __name__ == '__main__':
     print("Training model...")
     vision_model = multitask_vision_model.MultitaskVisionModel().build()
     vision_model.load_weights(args.vision_weights_filename)
-    lang_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id, vision_model).build()
+    lang_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id, multitask_vision_model=vision_model).build()
 
     # print("vision_model")
     # print(vision_model.summary())
