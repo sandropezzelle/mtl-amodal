@@ -50,6 +50,6 @@ class MSLLSTMModel:
         drop_hidden_more = Dropout(self._dropout)(hidden_more)
         out_more = Dense(self._more_classes, activation='softmax', name='pred1')(drop_hidden_more)
 
-        model = Model(input=inp, output=out_more)
+        model = Model(inputs=inp, outputs=out_more)
         model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
         return model

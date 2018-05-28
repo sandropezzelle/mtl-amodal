@@ -78,6 +78,6 @@ class MultitaskVisionModel:
         drop_hidden_prop = Dropout(self._dropout)(hidden_prop)
         out_prop = Dense(self._prop_classes, activation='softmax', name='pred3')(drop_hidden_prop)
 
-        model = Model(input=inp, output=[out_more, out_quant, out_prop])
+        model = Model(inputs=inp, outputs=[out_more, out_quant, out_prop])
         model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
         return model

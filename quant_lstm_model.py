@@ -50,6 +50,6 @@ class QuantLSTMModel:
         drop_hidden_quant = Dropout(self._dropout)(hidden_quant)
         out_quant = Dense(self._q_classes, activation='softmax', name='pred2')(drop_hidden_quant)
 
-        model = Model(input=inp, output=out_quant)
+        model = Model(inputs=inp, outputs=out_quant)
         model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
         return model
