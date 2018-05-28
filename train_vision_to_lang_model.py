@@ -18,7 +18,8 @@ if __name__ == '__main__':
     preprocessed_dataset_path = "lang_dataset/"
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     vision_weights_filename = "/mnt/povobackup/clic/sandro.pezzelle/model_weights_final/multi-task-prop/weight.best.hdf5"
-    lang_weights_filename = "best_models/vision_to_lang_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
+    # lang_weights_filename = "best_models/vision_to_lang_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
+    lang_weights_filename = "best_models/vision_to_lang_model.hdf5"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
@@ -80,18 +81,18 @@ if __name__ == '__main__':
     print("Training model...")
     vision_model = multitask_vision_model.MultitaskVisionModel().build()
     vision_model.load_weights(args.vision_weights_filename)
-    lang_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id).build()
+    lang_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id, vision_model).build()
 
-    print("vision_model")
-    print(vision_model.summary())
+    # print("vision_model")
+    # print(vision_model.summary())
+    #
+    # print("lang_model")
+    # print(lang_model.summary())
 
-    print("lang_model")
-    print(lang_model.summary())
-
-    for lvis, llang in zip(vision_model.layers[3:], lang_model.layers[7:]):
-        print(lvis, llang)
-        llang.set_weights(lvis.get_weights())
-        llang.trainable = False
+    # for lvis, llang in zip(vision_model.layers[3:], lang_model.layers[7:]):
+    #     print(lvis, llang)
+    #     llang.set_weights(lvis.get_weights())
+    #     llang.trainable = False
 
     checkpoint = MyModelCheckpoint(args.lang_weights_filename, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
     hist = lang_model.fit(

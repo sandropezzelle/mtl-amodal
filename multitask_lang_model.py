@@ -10,7 +10,7 @@ from keras.regularizers import l2
 
 class MultitaskLangModel:
     def __init__(self, embedding_matrix, token2id, emb_dim=300, input_shape=(25, 50), act_f='relu', dropout=0.5,
-                 l2_reg=1e-8, batch_size=32):
+                 l2_reg=1e-8, batch_size=32, multitask_vision_model=None):
         """
         initialization of hyperparameters
         """
@@ -25,6 +25,7 @@ class MultitaskLangModel:
         self._more_classes = 3
         self._prop_classes = 17
         self._q_classes = 9
+        self._multitask_vision_model = multitask_vision_model
 
     def build(self):
         """
@@ -100,4 +101,14 @@ class MultitaskLangModel:
 
         model = Model(input=inp, output=[out_more, out_quant, out_prop])
         model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+
+        if self._multitask_vision_model:
+            for lvis, llang in zip(self._multitask_vision_model.layers[3:], model.layers[7:]):
+                print(lvis, llang)
+                llang.set_weights(lvis.get_weights())
+                llang.trainable = False
+
+        model = Model(input=inp, output=[out_more, out_quant, out_prop])
+        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+
         return model
