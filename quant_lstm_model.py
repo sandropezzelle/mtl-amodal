@@ -1,4 +1,5 @@
 import numpy as np
+from keras import optimizers
 from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers import LSTM, Embedding
 from keras.layers import Reshape
@@ -51,5 +52,6 @@ class QuantLSTMModel:
         out_quant = Dense(self._q_classes, activation='softmax', name='pred2')(drop_hidden_quant)
 
         model = Model(inputs=inp, outputs=out_quant)
-        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+        sgd = optimizers.SGD(lr=0.001)
+        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
         return model

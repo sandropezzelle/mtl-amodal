@@ -100,7 +100,8 @@ class MultitaskLangModel:
         out_prop = Dense(self._prop_classes, activation='softmax', name='pred3')(drop_hidden_prop)
 
         model = Model(inputs=inp, outputs=[out_more, out_quant, out_prop])
-        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+        sgd = optimizers.SGD(lr=0.001)
+        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         if self._multitask_vision_model:
             for lvis, llang in zip(self._multitask_vision_model.layers[3:], model.layers[7:]):
@@ -109,7 +110,6 @@ class MultitaskLangModel:
                 llang.trainable = False
 
         model = Model(inputs=inp, outputs=[out_more, out_quant, out_prop])
-        sgd = optimizers.SGD(lr=0.001)
         model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         return model

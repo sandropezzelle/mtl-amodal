@@ -1,3 +1,4 @@
+from keras import optimizers
 from keras.applications.inception_v3 import InceptionV3
 from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers import Reshape
@@ -79,5 +80,6 @@ class MultitaskVisionModel:
         out_prop = Dense(self._prop_classes, activation='softmax', name='pred3')(drop_hidden_prop)
 
         model = Model(inputs=inp, outputs=[out_more, out_quant, out_prop])
-        model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+        sgd = optimizers.SGD(lr=0.001)
+        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
         return model
