@@ -96,4 +96,5 @@ if __name__ == '__main__':
     best_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id).build()
     best_model.load_weights(checkpoint.last_saved_filename)
     scores = best_model.evaluate(dataset_t, [t_m_out, t_q_out, t_r_out], batch_size=args.batch_size)
-    print("%s: %.4f%%" % (best_model.metrics_names[1], scores[1] * 100))
+    for i in enumerate(scores):
+        print("%s: %.4f%%" % (best_model.metrics_names[i], scores[i]))
