@@ -114,7 +114,7 @@ class MultitaskLangModel:
         model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
         if self._multitask_vision_model:
-            for lvis, llang in zip(self._multitask_vision_model.layers[3:], model.layers[8:]):
+            for lvis, llang in zip(self._multitask_vision_model.layers[3:], model.layers[7:]):
                 print(lvis, llang)
                 llang.set_weights(lvis.get_weights())
                 llang.trainable = False
