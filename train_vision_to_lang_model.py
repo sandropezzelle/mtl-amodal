@@ -3,6 +3,7 @@ import os
 import pickle
 
 import numpy as np
+from sklearn.metrics.classification import confusion_matrix
 
 import multitask_lang_model
 import multitask_vision_model
@@ -19,6 +20,7 @@ if __name__ == '__main__':
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     vision_weights_filename = "/mnt/povobackup/clic/sandro.pezzelle/model_weights_final/multi-task-prop/weight.best.hdf5"
     lang_weights_filename = "best_models/vision_to_lang_model-{epoch:02d}-{val_loss:.4f}-{val_pred1_loss:.4f}-{val_pred2_loss:.4f}-{val_pred3_loss:.4f}-{val_pred1_acc:.4f}-{val_pred2_acc:.4f}-{val_pred3_acc:.4f}.hdf5"
+    predictions_filename = "best_models/vision_to_lang_model-{epoch:02d}-{val_loss:.4f}-{val_pred1_loss:.4f}-{val_pred2_loss:.4f}-{val_pred3_loss:.4f}-{val_pred1_acc:.4f}-{val_pred2_acc:.4f}-{val_pred3_acc:.4f}.predictions"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
@@ -98,3 +100,25 @@ if __name__ == '__main__':
     scores = best_model.evaluate(dataset_t, [t_m_out, t_q_out, t_r_out], batch_size=args.batch_size)
     for i in enumerate(scores):
         print("%s: %.4f%%" % (best_model.metrics_names[i], scores[i]))
+
+    y_pred = best_model.predict_classes(dataset_t, verbose=1)
+    y_predarr = np.asarray(y_pred)
+    y_valarr = np.array(t_m_out, dtype=np.float16)
+    print("Confusion matrix for MSL task:")
+    print(confusion_matrix(y_valarr, y_predarr))
+
+    y_pred = best_model.predict_classes(dataset_t, verbose=1)
+    y_predarr = np.asarray(y_pred)
+    y_valarr = np.array(t_r_out, dtype=np.float16)
+    print("Confusion matrix for Prop task:")
+    print(confusion_matrix(y_valarr, y_predarr))
+
+    probabilities = best_model.predict(dataset_t, batch_size=args.batch_size)
+    with open(predictions_filename, mode="w") as out_file:
+        for i in range(3400):
+            for j in range(9):
+                out_file.write(str(probabilities[1][i][j]) + '\t')
+            out_file.write('\n')
+            for j in range(9):
+                out_file.write(str(t_q_out[i][j]) + '\t')
+            out_file.write('\n')

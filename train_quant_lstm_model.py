@@ -93,6 +93,7 @@ if __name__ == "__main__":
     best_model.load_weights(checkpoint.last_saved_filename)
     scores = best_model.evaluate(dataset_t, t_q_out, batch_size=args.batch_size)
     print("%s: %.4f%%" % (model.metrics_names[1], scores[1]))
+
     probabilities = model.predict(dataset_t, batch_size=args.batch_size)
     with open(predictions_filename, mode="w") as out_file:
         for i in range(3400):

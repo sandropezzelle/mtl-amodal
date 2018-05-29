@@ -3,6 +3,7 @@ import os
 import pickle
 
 import numpy as np
+from sklearn.metrics.classification import confusion_matrix
 
 import prop_lstm_model
 from utils import MyModelCheckpoint
@@ -91,3 +92,9 @@ if __name__ == "__main__":
     best_model.load_weights(checkpoint.last_saved_filename)
     scores = best_model.evaluate(dataset_t, t_r_out, batch_size=args.batch_size)
     print("%s: %.4f%%" % (model.metrics_names[1], scores[1]))
+
+    y_pred = model.predict_classes(dataset_t, verbose=1)
+    y_predarr = np.asarray(y_pred)
+    y_valarr = np.array(t_r_out, dtype=np.float16)
+    print("Confusion matrix:")
+    print(confusion_matrix(y_valarr, y_predarr))
