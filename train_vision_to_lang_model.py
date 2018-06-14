@@ -101,17 +101,15 @@ if __name__ == '__main__':
     for i in range(len(scores)):
         print("%s: %.4f%%" % (best_model.metrics_names[i], scores[i]))
 
-    y_pred = best_model.predict_classes(dataset_t, verbose=1)
-    y_predarr = np.asarray(y_pred)
+    y_pred = np.argmax(best_model.predict(dataset_t, verbose=1)[0], axis=1)
     y_valarr = np.array(t_m_out, dtype=np.float16)
     print("Confusion matrix for MSL task:")
-    print(confusion_matrix(y_valarr, y_predarr))
+    print(confusion_matrix(y_valarr, y_pred))
 
-    y_pred = best_model.predict_classes(dataset_t, verbose=1)
-    y_predarr = np.asarray(y_pred)
+    y_pred = np.argmax(best_model.predict(dataset_t, verbose=1)[2], axis=1)
     y_valarr = np.array(t_r_out, dtype=np.float16)
     print("Confusion matrix for Prop task:")
-    print(confusion_matrix(y_valarr, y_predarr))
+    print(confusion_matrix(y_valarr, y_pred))
 
     probabilities = best_model.predict(dataset_t, batch_size=args.batch_size)
     with open(predictions_filename, mode="w") as out_file:
