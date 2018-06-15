@@ -1,23 +1,16 @@
-from keras import backend as K, optimizers
-from keras.layers import Embedding
+from keras import optimizers
+from keras.applications.inception_v3 import InceptionV3
 from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers import Reshape
-from keras.layers.core import Lambda
+from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
 from keras.layers.wrappers import TimeDistributed
 from keras.models import Model
 from keras.regularizers import l2
 
 
-class MultitaskLangModel:
-    def __init__(self, embedding_matrix, token2id, emb_dim=300, input_shape=(25, 50), act_f='relu', dropout=0.5,
-                 l2_reg=1e-8, batch_size=32, multitask_vision_model=None):
-        """
-        initialization of hyperparameters
-        """
-        self._embedding_matrix = embedding_matrix
-        self._token2id = token2id
-        self._emb_dim = emb_dim
+class MultitaskMultimodalModel:
+    def __init__(self, input_shape=(203, 203, 3), act_f='relu', dropout=0.5, l2_reg=1e-8, batch_size=32):
         self._input_shape = input_shape
         self._act_f = act_f
         self._dropout = dropout
@@ -26,47 +19,41 @@ class MultitaskLangModel:
         self._more_classes = 3
         self._prop_classes = 17
         self._q_classes = 9
-        self._multitask_vision_model = multitask_vision_model
 
     def build(self):
-        """
-        loads the inception network,
-        contains the fully connected layers,
-        for each task, it predicts the class
-        it returns the prediction for 3 tasks
+        # Language input
 
-        model_inception = InceptionV3(weights = None, include_top = False)
-        inp = Input(self.input_shape, name = 'more_input')
-
-        out_inc = model_inception(inp)
-        out_res = Reshape((25,2048))(out_inc)
-        """
-        # Sum of embeddings
-        # inp = Input(self._input_shape, name='lang_input')
-        # emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, weights=[self._embedding_matrix], trainable=False)
-        # sum_dim1 = Lambda(lambda xin: K.sum(xin, axis=2))
-        # inp_res = Reshape((25 * 50,))(inp)
-        # emb_out = emb_mod(inp_res)
-        # res_emb = Reshape((25, 50, self._emb_dim))(emb_out)
-        # res_sum_dim1 = sum_dim1(res_emb)
-
-        inp = Input(self._input_shape, name='lang_input')
+        language_input = Input(self._input_shape, name='lang_input')
         emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, weights=[self._embedding_matrix], trainable=False)
         lstm_mod = LSTM(2048, activation=self._act_f)
-        inp_res = Reshape((25 * 50,))(inp)
+        inp_res = Reshape((25 * 50,))(language_input)
         emb_out = emb_mod(inp_res)
         res_emb = Reshape((25, 50, self._emb_dim))(emb_out)
         td_lstm = TimeDistributed(lstm_mod)
         res_td_lstm = td_lstm(res_emb)
 
-        td_dense0 = TimeDistributed(Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f))
-        drop_td_dense0 = Dropout(self._dropout)
-        l_td_dense0 = td_dense0(res_td_lstm)
-        drop_l_td_dense0 = drop_td_dense0(l_td_dense0)
+        # Visual input
+
+        model_inception = InceptionV3(weights=None, include_top=False)
+        visual_input = Input(self._input_shape, name='more_input')
+        out_inc = model_inception(visual_input)
+        out_res = Reshape((25, 2048))(out_inc)
+
+        # Shared layers
+
+        td_dense_lang = TimeDistributed(Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f))
+        drop_td_dense_lang = Dropout(self._dropout)
+        l_td_dense_lang = td_dense_lang(res_td_lstm)
+        drop_l_td_dense_lang = drop_td_dense_lang(l_td_dense_lang)
+
+        td_dense_visual = TimeDistributed(Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f))
+        drop_td_dense_visual = Dropout(self._dropout)
+        l_td_dense_visual = td_dense_visual(out_res)
+        drop_l_td_dense_visual = drop_td_dense_visual(l_td_dense_visual)
 
         td_dense = TimeDistributed(Dense(1024, W_regularizer=l2(self._l2_reg), activation=self._act_f))
         drop_td_dense = Dropout(self._dropout)
-        l_td_dense = td_dense(drop_l_td_dense0)
+        l_td_dense = td_dense(drop_l_td_dense_visual)
         drop_l_td_dense = drop_td_dense(l_td_dense)
 
         td_dense2 = TimeDistributed(Dense(512, W_regularizer=l2(self._l2_reg), activation=self._act_f))
@@ -109,17 +96,12 @@ class MultitaskLangModel:
         drop_hidden_prop = Dropout(self._dropout)(hidden_prop)
         out_prop = Dense(self._prop_classes, activation='softmax', name='pred3')(drop_hidden_prop)
 
-        model = Model(inputs=inp, outputs=[out_more, out_quant, out_prop])
         sgd = optimizers.SGD(lr=0.001)
-        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-        if self._multitask_vision_model:
-            for lvis, llang in zip(self._multitask_vision_model.layers[3:], model.layers[7:]):
-                print(lvis, llang)
-                llang.set_weights(lvis.get_weights())
-                llang.trainable = False
+        language_model = Model(inputs=language_input, outputs=[out_more, out_quant, out_prop])
+        language_model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-            model = Model(inputs=inp, outputs=[out_more, out_quant, out_prop])
-            model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+        visual_model = Model(inputs=visual_input, outputs=[out_more, out_quant, out_prop])
+        visual_model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-        return model
+        return language_model

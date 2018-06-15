@@ -1,6 +1,31 @@
 import warnings
 
+import skimage
+import skimage.io
+import skimage.transform
 from keras.callbacks import ModelCheckpoint
+
+
+def load_image2(path, dim):
+    img = skimage.io.imread(path)
+    img = img / 255.0
+    assert (0 <= img).all() and (img <= 1).all()
+    short_edge = min(img.shape[:2])
+    yy = int((img.shape[0] - short_edge) / 2)
+    xx = int((img.shape[1] - short_edge) / 2)
+    crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
+    resized_img = skimage.transform.resize(crop_img, (dim, dim))
+    return resized_img
+
+
+def load_image(path, dim):
+    img = skimage.io.imread(path)
+    img = img / 255.0
+    assert (0 <= img).all() and (img <= 1).all()
+    #    print "1original image shape :", img.shape
+    resized_img = skimage.transform.resize(img, (dim, dim))
+    #    print "1resized image :",resized_img.shape
+    return resized_img
 
 
 def read_qprobs(path):

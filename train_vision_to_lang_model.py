@@ -82,9 +82,11 @@ if __name__ == '__main__':
     print("Training model...")
     vision_model = multitask_vision_model.MultitaskVisionModel().build()
     vision_model.load_weights(args.vision_weights_filename)
-    lang_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id, multitask_vision_model=vision_model).build()
+    lang_model = multitask_lang_model.MultitaskLangModel(embedding_matrix, token2id,
+                                                         multitask_vision_model=vision_model).build()
 
-    checkpoint = MyModelCheckpoint(args.lang_weights_filename, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+    checkpoint = MyModelCheckpoint(args.lang_weights_filename, monitor='val_loss', verbose=1, save_best_only=True,
+                                   mode='min')
     hist = lang_model.fit(
         dataset_tr,
         [tr_m_out, tr_q_out, tr_r_out],
