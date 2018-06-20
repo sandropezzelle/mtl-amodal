@@ -62,7 +62,7 @@ def read_qprobs(path):
 class MyModelCheckpoint(ModelCheckpoint):
     def __init__(self, *args, **kwargs):
         super(MyModelCheckpoint, self).__init__(*args, **kwargs)
-        self.last_saved_filename = None
+        self.best_saved_filename = None
 
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
@@ -87,7 +87,7 @@ class MyModelCheckpoint(ModelCheckpoint):
                             self.model.save_weights(filepath, overwrite=True)
                         else:
                             self.model.save(filepath, overwrite=True)
-                        self.last_saved_filename = filepath
+                        self.best_saved_filename = filepath
                     else:
                         if self.verbose > 0:
                             print('\nEpoch %05d: %s did not improve' %

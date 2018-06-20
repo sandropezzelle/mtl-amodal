@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     print("Evaluating model...")
     best_model = msl_lstm_model.MSLLSTMModel(embedding_matrix, token2id).build()
-    best_model.load_weights(checkpoint.last_saved_filename)
+    best_model.load_weights(checkpoint.best_saved_filename)
     scores = best_model.evaluate(dataset_t, t_m_out, batch_size=args.batch_size)
     print("%s: %.4f%%" % (model.metrics_names[1], scores[1]))
 
