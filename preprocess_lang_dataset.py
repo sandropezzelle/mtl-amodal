@@ -73,6 +73,7 @@ def load_data(split):
 
     with open(split, 'r') as splitfile:
         for n, line in enumerate(splitfile):
+            print("Processing line {}/{}".format(n, size))
             line2 = line.split("', ")[2][1:]
             target = line2.split("], [")[0]
             target_arr = target.split(", ")
