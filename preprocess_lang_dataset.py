@@ -134,7 +134,7 @@ def load_data(split):
                 m_out[count][2] = 1.0
 
             inpl, people_names, people_years = load_people(target_arr, non_target_arr)
-            inp[count].extend(inpl)
+            inp[count].append(inpl)
             inp_names[count].extend(people_names)
             inp_years[count].extend(people_years)
             count += 1
