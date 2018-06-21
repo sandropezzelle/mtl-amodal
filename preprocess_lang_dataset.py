@@ -196,10 +196,10 @@ if __name__ == "__main__":
         pickle.dump({"token2id": token2id, "id2token": id2token}, out_file)
 
     with open(os.path.join(args.output_path, "train.pkl"), mode="wb") as out_file:
-        pickle.dump({"tr_inp": tr_inp, "tr_m_out": tr_m_out, "tr_q_out": tr_q_out, "tr_r_out": tr_r_out}, out_file)
+        pickle.dump({"dataset_tr": dataset_tr, "tr_m_out": tr_m_out, "tr_q_out": tr_q_out, "tr_r_out": tr_r_out}, out_file)
 
     with open(os.path.join(args.output_path, "test.pkl"), mode="wb") as out_file:
-        pickle.dump({"t_inp": t_inp, "t_m_out": t_m_out, "t_q_out": t_q_out, "t_r_out": t_r_out}, out_file)
+        pickle.dump({"dataset_t": dataset_t, "t_m_out": t_m_out, "t_q_out": t_q_out, "t_r_out": t_r_out}, out_file)
 
     with open(os.path.join(args.output_path, "valid.pkl"), mode="wb") as out_file:
-        pickle.dump({"v_inp": v_inp, "v_m_out": v_m_out, "v_q_out": v_q_out, "v_r_out": v_r_out}, out_file)
+        pickle.dump({"dataset_v": dataset_v, "v_m_out": v_m_out, "v_q_out": v_q_out, "v_r_out": v_r_out}, out_file)
