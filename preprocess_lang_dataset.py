@@ -97,6 +97,7 @@ def load_data(split):
 
     with open(split, 'r') as splitfile:
         for n, line in enumerate(splitfile):
+            print("Processing line {}/{}".format(n, size))
             line2 = line.split("', ")[2][1:]
             target = line2.split("], [")[0]
             target_arr = target.split(", ")
@@ -154,21 +155,25 @@ if __name__ == "__main__":
     data_path = args.data_path
 
     tr, v, tst = read_data(data_path)
-
     ratios = utils.read_qprobs(repository_path)
     create_ratio_dict(ratios)
 
+    print("Processing training set")
     tr_inp, tr_m_out, tr_q_out, tr_r_out, tr_inp_names, tr_inp_years = load_data(tr)
+
+    print("Processing validation set")
     v_inp, v_m_out, v_q_out, v_r_out, v_inp_names, v_inp_years = load_data(v)
+
+    print("Processing test set")
     t_inp, t_m_out, t_q_out, t_r_out, t_inp_names, t_inp_years = load_data(tst)
 
     token2id = {}
     id2token = {}
 
     m_out2id = {
-        "less": np.array([1, 0, 0]),
-        "same": np.array([0, 1, 0]),
-        "more": np.array([0, 0, 1])
+        "less": tuple(np.array([1, 0, 0])),
+        "same": tuple(np.array([0, 1, 0])),
+        "more": tuple(np.array([0, 0, 1]))
     }
     id2m_out = {y: x for x, y in m_out2id.items()}
 
@@ -176,6 +181,7 @@ if __name__ == "__main__":
     for r in r_dict:
         r_out = np.zeros((17,))
         r_out[r_dict[r]] = 1
+        r_out2id[tuple(r)] = r_out
     id2r_out = {y: x for x, y in r_out2id.items()}
 
     dataset_tr, dataset_v, dataset_t = [], [], []
