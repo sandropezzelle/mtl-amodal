@@ -1,7 +1,7 @@
 import argparse
 import os
 import pickle
-
+import unicodecsv as csv
 import numpy as np
 import pandas as pd
 
@@ -35,6 +35,10 @@ if __name__ == '__main__':
         index = pickle.load(in_file)
         token2id = index["token2id"]
         id2token = index["id2token"]
+        m_out2id = index["m_out2id"]
+        id2m_out = index["id2m_out"]
+        r_out2id = index["r_out2id"]
+        id2r_out = index["id2r_out"]
 
     train_filename = os.path.join(args.preprocessed_dataset_path, "train.pkl")
     print("Loading filename: {}".format(train_filename))
@@ -44,14 +48,8 @@ if __name__ == '__main__':
         tr_m_out = train["tr_m_out"]
         tr_q_out = train["tr_q_out"]
         tr_r_out = train["tr_r_out"]
-
-    # for i, scenario in enumerate(dataset_tr):
-    #     print("Scenario {}".format(i))
-    #     for person in scenario:
-    #         tokens = [id2token[token] for token in person if token != 0]
-    #         if tokens:
-    #             print(tokens)
-    # exit(0)
+        dataset_tr_names = train["dataset_tr_names"]
+        dataset_tr_years = train["dataset_tr_years"]
 
     test_filename = os.path.join(args.preprocessed_dataset_path, "test.pkl")
     print("Loading filename: {}".format(test_filename))
@@ -61,6 +59,8 @@ if __name__ == '__main__':
         t_m_out = test["t_m_out"]
         t_q_out = test["t_q_out"]
         t_r_out = test["t_r_out"]
+        dataset_t_names = train["dataset_t_names"]
+        dataset_t_years = train["dataset_t_years"]
 
     valid_filename = os.path.join(args.preprocessed_dataset_path, "valid.pkl")
     print("Loading filename: {}".format(valid_filename))
@@ -70,6 +70,8 @@ if __name__ == '__main__':
         v_m_out = valid["v_m_out"]
         v_q_out = valid["v_q_out"]
         v_r_out = valid["v_r_out"]
+        dataset_v_names = train["dataset_v_names"]
+        dataset_v_years = train["dataset_v_years"]
 
     print("Loading filename: {}".format(args.embeddings_filename))
     embeddings_index = {}
@@ -127,3 +129,18 @@ if __name__ == '__main__':
                 out_file.write(str(t_q_out[i][j]) + '\t')
             out_file.write('\n')
 
+    with open(checkpoint.best_saved_filename.replace(".hdf5", ".predictions"), mode="w") as out_file:
+        writer = csv.writer(out_file, delimiter="\t", encoding="utf-8")
+        for i, scenario in enumerate(dataset_t):
+            names = " ".join()
+            for j, person in enumerate(scenario):
+                json_scenario.append((dataset_t_names[i][j], dataset_t_years[i][j]))
+                writer.writerow([])
+                json_predictions.append(
+                    {
+                        "scenario": json_scenario,
+                        "gold_labels": {
+                            "predictions"
+                        }
+                    }
+                )
