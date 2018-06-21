@@ -42,7 +42,7 @@ def load_people(target_index, non_target_index):
     for idx in target_index:
         if idx is not '':
             i = int(idx)
-            myperson = target_bios[i].split()[0:50]
+            myperson = target_bios[i].split()[:50]
             people.append(myperson)
             people_names.append(target_names[i])
             people_years.append("1900")
@@ -50,15 +50,17 @@ def load_people(target_index, non_target_index):
     for idx in non_target_index:
         if idx is not '':
             j = int(idx)
-            myperson = non_target_bios[j].split()[0:50]
+            myperson = non_target_bios[j].split()[:50]
             people.append(myperson)
             people_names.append(non_target_names[j])
             people_years.append("1700")
 
     pad = 25 - int(len(people))
 
-    for i in range(pad):
+    for _ in range(pad):
         people.append([])
+        people_names.append("#pad#")
+        people_years.append("#pad#")
 
     triples = list(zip(people, people_names, people_years))
 
@@ -88,6 +90,8 @@ def load_data(split):
         reader = [line.split() for line in splitfile]
         size = int(len(reader))
         inp = [[] for _ in range(size)]
+        inp_names = [[] for _ in range(size)]
+        inp_years = [[] for _ in range(size)]
         m_out = np.zeros((size, 3))
         q_out = np.zeros((size, 9))
         r_out = np.zeros((size, 17))
@@ -127,9 +131,11 @@ def load_data(split):
 
             inpl, people_names, people_years = load_people(target_arr, non_target_arr)
             inp[count].append(inpl)
+            inp_names[count].append(people_names)
+            inp_years[count].append(people_years)
             count += 1
 
-        return inp, m_out, q_out, r_out
+        return inp, m_out, q_out, r_out, inp_names, inp_years
 
 
 def create_ratio_dict(ratios):
@@ -151,20 +157,39 @@ if __name__ == "__main__":
     data_path = args.data_path
 
     tr, v, tst = read_data(data_path)
-
     ratios = utils.read_qprobs(repository_path)
     create_ratio_dict(ratios)
 
-    tr_inp, tr_m_out, tr_q_out, tr_r_out = load_data(tr)
-    v_inp, v_m_out, v_q_out, v_r_out = load_data(v)
-    t_inp, t_m_out, t_q_out, t_r_out = load_data(tst)
+    print("Processing training set")
+    tr_inp, tr_m_out, tr_q_out, tr_r_out, tr_inp_names, tr_inp_years = load_data(tr)
+
+    print("Processing validation set")
+    v_inp, v_m_out, v_q_out, v_r_out, v_inp_names, v_inp_years = load_data(v)
+
+    print("Processing test set")
+    t_inp, t_m_out, t_q_out, t_r_out, t_inp_names, t_inp_years = load_data(tst)
 
     token2id = {}
     id2token = {}
+
+    m_out2id = {
+        "less": tuple(np.array([1, 0, 0])),
+        "same": tuple(np.array([0, 1, 0])),
+        "more": tuple(np.array([0, 0, 1]))
+    }
+    id2m_out = {y: x for x, y in m_out2id.items()}
+
+    r_out2id = {}
+    for r in r_dict:
+        r_out = np.zeros((17,))
+        r_out[r_dict[r]] = 1
+        r_out = tuple(r_out)
+        r_out2id[r] = r_out
+    id2r_out = {y: x for x, y in r_out2id.items()}
+
     dataset_tr, dataset_v, dataset_t = [], [], []
 
     for n, dtp in enumerate(tr_inp):
-        pad = np.zeros((25, 50))
         for i in dtp:
             authors = []
             for nn, el in enumerate(i):
@@ -181,7 +206,6 @@ if __name__ == "__main__":
     dataset_tr = np.array(dataset_tr)
 
     for n, dtp in enumerate(v_inp):
-        pad = np.zeros((25, 50))
         for i in dtp:
             authors = []
             for nn, el in enumerate(i):
@@ -198,7 +222,6 @@ if __name__ == "__main__":
     dataset_v = np.array(dataset_v)
 
     for n, dtp in enumerate(t_inp):
-        pad = np.zeros((25, 50))
         for i in dtp:
             authors = []
             for nn, el in enumerate(i):
@@ -215,13 +238,41 @@ if __name__ == "__main__":
     dataset_t = np.array(dataset_t)
 
     with open(os.path.join(args.output_path, "index.pkl"), mode="wb") as out_file:
-        pickle.dump({"token2id": token2id, "id2token": id2token}, out_file)
+        pickle.dump({
+            "token2id": token2id,
+            "id2token": id2token,
+            "m_out2id": m_out2id,
+            "id2m_out": id2m_out,
+            "r_out2id": r_out2id,
+            "id2r_out": id2r_out
+        }, out_file)
 
     with open(os.path.join(args.output_path, "train.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_tr": dataset_tr, "tr_m_out": tr_m_out, "tr_q_out": tr_q_out, "tr_r_out": tr_r_out}, out_file)
+        pickle.dump({
+            "dataset_tr": dataset_tr,
+            "tr_m_out": tr_m_out,
+            "tr_q_out": tr_q_out,
+            "tr_r_out": tr_r_out,
+            "dataset_tr_names": tr_inp_names,
+            "dataset_tr_years": tr_inp_years
+        }, out_file)
 
     with open(os.path.join(args.output_path, "test.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_t": dataset_t, "t_m_out": t_m_out, "t_q_out": t_q_out, "t_r_out": t_r_out}, out_file)
+        pickle.dump({
+            "dataset_t": dataset_t,
+            "t_m_out": t_m_out,
+            "t_q_out": t_q_out,
+            "t_r_out": t_r_out,
+            "dataset_v_names": v_inp_names,
+            "dataset_v_years": v_inp_years
+        }, out_file)
 
     with open(os.path.join(args.output_path, "valid.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_v": dataset_v, "v_m_out": v_m_out, "v_q_out": v_q_out, "v_r_out": v_r_out}, out_file)
+        pickle.dump({
+            "dataset_v": dataset_v,
+            "v_m_out": v_m_out,
+            "v_q_out": v_q_out,
+            "v_r_out": v_r_out,
+            "dataset_t_names": t_inp_names,
+            "dataset_t_years": t_inp_years
+        }, out_file)
