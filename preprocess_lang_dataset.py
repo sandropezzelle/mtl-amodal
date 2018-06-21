@@ -1,4 +1,5 @@
 import argparse
+import csv
 import os
 import pickle
 from random import shuffle
@@ -17,34 +18,55 @@ def load_people(target_index, non_target_index):
     target = data_path + '1900_133.txt'
     non_target = data_path + '1700_133.txt'
 
-    with open(target, 'r') as targx:
-        reader = [line.split('\t')[3] for line in targx]
+    target_names = []
+    target_bios = []
+    non_target_names = []
+    non_target_bios = []
 
-    with open(non_target, 'r') as ntargx:
-        nreader = [line.split('\t')[3] for line in ntargx]
+    with open(target) as targx:
+        reader = csv.reader(targx, delimiter="\t")
+        for row in reader:
+            target_names.append(row[2].strip())
+            target_bios.append(row[3].strip())
+
+    with open(non_target) as ntargx:
+        reader = csv.reader(ntargx, delimiter="\t")
+        for row in reader:
+            non_target_names.append(row[2].strip())
+            non_target_bios.append(row[3].strip())
 
     people = []
+    people_names = []
+    people_years = []
 
     for idx in target_index:
         if idx is not '':
             i = int(idx)
-            myperson = reader[i].split()[0:50]
+            myperson = target_bios[i].split()[:50]
             people.append(myperson)
+            people_names.append(target_names[i])
+            people_years.append("1900")
 
     for idx in non_target_index:
         if idx is not '':
             j = int(idx)
-            myperson = nreader[j].split()[0:50]
+            myperson = non_target_bios[j].split()[:50]
             people.append(myperson)
+            people_names.append(non_target_names[j])
+            people_years.append("1700")
 
     pad = 25 - int(len(people))
 
-    for i in range(pad):
+    for _ in range(pad):
         people.append([])
 
-    shuffle(people)
+    triples = list(zip(people, people_names, people_years))
 
-    return people
+    shuffle(triples)
+
+    people, people_names, people_years = zip(*triples)
+
+    return people, people_names, people_years
 
 
 def read_data(data_path):
@@ -66,6 +88,8 @@ def load_data(split):
         reader = [line.split() for line in splitfile]
         size = int(len(reader))
         inp = [[] for _ in range(size)]
+        inp_names = [[] for _ in range(size)]
+        inp_years = [[] for _ in range(size)]
         m_out = np.zeros((size, 3))
         q_out = np.zeros((size, 9))
         r_out = np.zeros((size, 17))
@@ -102,11 +126,13 @@ def load_data(split):
             if ratio_val > 0.5:
                 m_out[count][2] = 1.0
 
-            inpl = load_people(target_arr, non_target_arr)
+            inpl, people_names, people_years = load_people(target_arr, non_target_arr)
             inp[count].append(inpl)
+            inp_names[count].append(people_names)
+            inp_years[count].append(people_years)
             count += 1
 
-        return inp, m_out, q_out, r_out
+        return inp, m_out, q_out, r_out, inp_names, inp_years
 
 
 def create_ratio_dict(ratios):
@@ -132,9 +158,9 @@ if __name__ == "__main__":
     ratios = utils.read_qprobs(repository_path)
     create_ratio_dict(ratios)
 
-    tr_inp, tr_m_out, tr_q_out, tr_r_out = load_data(tr)
-    v_inp, v_m_out, v_q_out, v_r_out = load_data(v)
-    t_inp, t_m_out, t_q_out, t_r_out = load_data(tst)
+    tr_inp, tr_m_out, tr_q_out, tr_r_out, tr_inp_names, tr_inp_years = load_data(tr)
+    v_inp, v_m_out, v_q_out, v_r_out, v_inp_names, v_inp_years = load_data(v)
+    t_inp, t_m_out, t_q_out, t_r_out, t_inp_names, t_inp_years = load_data(tst)
 
     token2id = {}
     id2token = {}
@@ -195,10 +221,10 @@ if __name__ == "__main__":
         pickle.dump({"token2id": token2id, "id2token": id2token}, out_file)
 
     with open(os.path.join(args.output_path, "train.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_tr": dataset_tr, "tr_m_out": tr_m_out, "tr_q_out": tr_q_out, "tr_r_out": tr_r_out}, out_file)
+        pickle.dump({"dataset_tr": dataset_tr, "tr_m_out": tr_m_out, "tr_q_out": tr_q_out, "tr_r_out": tr_r_out, "dataset_tr_names": tr_inp_names, "dataset_tr_years": tr_inp_years}, out_file)
 
     with open(os.path.join(args.output_path, "test.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_t": dataset_t, "t_m_out": t_m_out, "t_q_out": t_q_out, "t_r_out": t_r_out}, out_file)
+        pickle.dump({"dataset_t": dataset_t, "t_m_out": t_m_out, "t_q_out": t_q_out, "t_r_out": t_r_out, "dataset_v_names": v_inp_names, "dataset_v_years": v_inp_years}, out_file)
 
     with open(os.path.join(args.output_path, "valid.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_v": dataset_v, "v_m_out": v_m_out, "v_q_out": v_q_out, "v_r_out": v_r_out}, out_file)
+        pickle.dump({"dataset_v": dataset_v, "v_m_out": v_m_out, "v_q_out": v_q_out, "v_r_out": v_r_out, "dataset_t_names": t_inp_names, "dataset_t_years": t_inp_years}, out_file)
