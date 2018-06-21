@@ -131,16 +131,36 @@ if __name__ == '__main__':
 
     with open(checkpoint.best_saved_filename.replace(".hdf5", ".predictions"), mode="w") as out_file:
         writer = csv.writer(out_file, delimiter="\t", encoding="utf-8")
+        writer.writerow(
+            [
+                "names",
+                "years",
+                "t_m_out",
+                "t_q_out",
+                "t_r_out",
+                "t_pred_m_out",
+                "t_pred_q_out",
+                "t_pred_r_out"
+            ]
+        )
         for i, scenario in enumerate(dataset_t):
-            names = " ".join()
-            for j, person in enumerate(scenario):
-                json_scenario.append((dataset_t_names[i][j], dataset_t_years[i][j]))
-                writer.writerow([])
-                json_predictions.append(
-                    {
-                        "scenario": json_scenario,
-                        "gold_labels": {
-                            "predictions"
-                        }
-                    }
-                )
+            formatted_names = ", ".join(dataset_t_names[i])
+            formatted_years = ", ".join(dataset_t_years[i])
+            formatted_t_m_out = id2m_out[tuple(t_m_out[i])]
+            formatted_t_q_out = str(t_q_out[i])
+            formatted_t_r_out = id2r_out[tuple(t_r_out[i])]
+            formatted_t_pred_m_out = y_pred_msl[i]
+            formatted_t_pred_q_out = str(predictions[1][i])
+            formatted_t_pred_r_out = y_pred_prop[i]
+            writer.writerow(
+                [
+                    formatted_names,
+                    formatted_years,
+                    formatted_t_m_out,
+                    formatted_t_q_out,
+                    formatted_t_r_out,
+                    formatted_t_pred_m_out,
+                    formatted_t_pred_q_out,
+                    formatted_t_pred_r_out
+                ]
+            )
