@@ -1,4 +1,5 @@
 import argparse
+import csv
 import os
 import pickle
 from random import shuffle
@@ -17,34 +18,55 @@ def load_people(target_index, non_target_index):
     target = data_path + '1900_133.txt'
     non_target = data_path + '1700_133.txt'
 
-    with open(target, 'r') as targx:
-        reader = [line.split('\t')[3] for line in targx]
+    target_names = []
+    target_bios = []
+    non_target_names = []
+    non_target_bios = []
 
-    with open(non_target, 'r') as ntargx:
-        nreader = [line.split('\t')[3] for line in ntargx]
+    with open(target) as targx:
+        reader = csv.reader(targx, delimiter="\t")
+        for row in reader:
+            target_names.append(row[2].strip())
+            target_bios.append(row[3].strip())
+
+    with open(non_target) as ntargx:
+        reader = csv.reader(ntargx, delimiter="\t")
+        for row in reader:
+            non_target_names.append(row[2].strip())
+            non_target_bios.append(row[3].strip())
 
     people = []
+    people_names = []
+    people_years = []
 
     for idx in target_index:
         if idx is not '':
             i = int(idx)
-            myperson = reader[i].split()[0:50]
+            myperson = target_bios[i].split()[0:50]
             people.append(myperson)
+            people_names.append(target_names[i])
+            people_years.append("1900")
 
     for idx in non_target_index:
         if idx is not '':
             j = int(idx)
-            myperson = nreader[j].split()[0:50]
+            myperson = non_target_bios[j].split()[0:50]
             people.append(myperson)
+            people_names.append(non_target_names[j])
+            people_years.append("1700")
 
     pad = 25 - int(len(people))
 
     for i in range(pad):
         people.append([])
 
-    shuffle(people)
+    triples = list(zip(people, people_names, people_years))
 
-    return people
+    shuffle(triples)
+
+    people, people_names, people_years = zip(*triples)
+
+    return people, people_names, people_years
 
 
 def read_data(data_path):
@@ -103,7 +125,7 @@ def load_data(split):
             if ratio_val > 0.5:
                 m_out[count][2] = 1.0
 
-            inpl = load_people(target_arr, non_target_arr)
+            inpl, people_names, people_years = load_people(target_arr, non_target_arr)
             inp[count].append(inpl)
             count += 1
 
