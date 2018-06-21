@@ -164,10 +164,23 @@ if __name__ == "__main__":
 
     token2id = {}
     id2token = {}
+
+    m_out2id = {
+        "less": np.array([1, 0, 0]),
+        "same": np.array([0, 1, 0]),
+        "more": np.array([0, 0, 1])
+    }
+    id2m_out = {y: x for x, y in m_out2id.items()}
+
+    r_out2id = {}
+    for r in r_dict:
+        r_out = np.zeros((17,))
+        r_out[r_dict[r]] = 1
+    id2r_out = {y: x for x, y in r_out2id.items()}
+
     dataset_tr, dataset_v, dataset_t = [], [], []
 
     for n, dtp in enumerate(tr_inp):
-        pad = np.zeros((25, 50))
         for i in dtp:
             authors = []
             for nn, el in enumerate(i):
@@ -184,7 +197,6 @@ if __name__ == "__main__":
     dataset_tr = np.array(dataset_tr)
 
     for n, dtp in enumerate(v_inp):
-        pad = np.zeros((25, 50))
         for i in dtp:
             authors = []
             for nn, el in enumerate(i):
@@ -201,7 +213,6 @@ if __name__ == "__main__":
     dataset_v = np.array(dataset_v)
 
     for n, dtp in enumerate(t_inp):
-        pad = np.zeros((25, 50))
         for i in dtp:
             authors = []
             for nn, el in enumerate(i):
@@ -218,13 +229,41 @@ if __name__ == "__main__":
     dataset_t = np.array(dataset_t)
 
     with open(os.path.join(args.output_path, "index.pkl"), mode="wb") as out_file:
-        pickle.dump({"token2id": token2id, "id2token": id2token}, out_file)
+        pickle.dump({
+            "token2id": token2id,
+            "id2token": id2token,
+            "m_out2id": m_out2id,
+            "id2m_out": id2m_out,
+            "r_out2id": r_out2id,
+            "id2r_out": id2r_out
+        }, out_file)
 
     with open(os.path.join(args.output_path, "train.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_tr": dataset_tr, "tr_m_out": tr_m_out, "tr_q_out": tr_q_out, "tr_r_out": tr_r_out, "dataset_tr_names": tr_inp_names, "dataset_tr_years": tr_inp_years}, out_file)
+        pickle.dump({
+            "dataset_tr": dataset_tr,
+            "tr_m_out": tr_m_out,
+            "tr_q_out": tr_q_out,
+            "tr_r_out": tr_r_out,
+            "dataset_tr_names": tr_inp_names,
+            "dataset_tr_years": tr_inp_years
+        }, out_file)
 
     with open(os.path.join(args.output_path, "test.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_t": dataset_t, "t_m_out": t_m_out, "t_q_out": t_q_out, "t_r_out": t_r_out, "dataset_v_names": v_inp_names, "dataset_v_years": v_inp_years}, out_file)
+        pickle.dump({
+            "dataset_t": dataset_t,
+            "t_m_out": t_m_out,
+            "t_q_out": t_q_out,
+            "t_r_out": t_r_out,
+            "dataset_v_names": v_inp_names,
+            "dataset_v_years": v_inp_years
+        }, out_file)
 
     with open(os.path.join(args.output_path, "valid.pkl"), mode="wb") as out_file:
-        pickle.dump({"dataset_v": dataset_v, "v_m_out": v_m_out, "v_q_out": v_q_out, "v_r_out": v_r_out, "dataset_t_names": t_inp_names, "dataset_t_years": t_inp_years}, out_file)
+        pickle.dump({
+            "dataset_v": dataset_v,
+            "v_m_out": v_m_out,
+            "v_q_out": v_q_out,
+            "v_r_out": v_r_out,
+            "dataset_t_names": t_inp_names,
+            "dataset_t_years": t_inp_years
+        }, out_file)
