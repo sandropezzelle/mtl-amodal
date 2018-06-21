@@ -1,5 +1,5 @@
 import argparse
-import csv
+import unicodecsv as csv
 import os
 import pickle
 from random import shuffle
@@ -24,13 +24,13 @@ def load_people(target_index, non_target_index):
     non_target_bios = []
 
     with open(target) as targx:
-        reader = csv.reader(targx, delimiter="\t")
+        reader = csv.reader(targx, delimiter="\t", encoding="utf-8")
         for row in reader:
             target_names.append(row[2].strip())
             target_bios.append(row[3].strip())
 
     with open(non_target) as ntargx:
-        reader = csv.reader(ntargx, delimiter="\t")
+        reader = csv.reader(ntargx, delimiter="\t", encoding="utf-8")
         for row in reader:
             non_target_names.append(row[2].strip())
             non_target_bios.append(row[3].strip())
@@ -67,6 +67,10 @@ def load_people(target_index, non_target_index):
     shuffle(triples)
 
     people, people_names, people_years = zip(*triples)
+
+    people = list(people)
+    people_names = list(people_names)
+    people_years = list(people_years)
 
     return people, people_names, people_years
 
