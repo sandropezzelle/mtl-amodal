@@ -181,7 +181,8 @@ if __name__ == "__main__":
     for r in r_dict:
         r_out = np.zeros((17,))
         r_out[r_dict[r]] = 1
-        r_out2id[tuple(r)] = r_out
+        r_out = tuple(r_out)
+        r_out2id[r] = r_out
     id2r_out = {y: x for x, y in r_out2id.items()}
 
     dataset_tr, dataset_v, dataset_t = [], [], []
