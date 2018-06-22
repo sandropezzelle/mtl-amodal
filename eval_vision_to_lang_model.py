@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
     parser.add_argument("--model_filename", type=str, required=True)
+    parser.add_argument("--batch_size", type=int, default=32)
     args = parser.parse_args()
 
     index_filename = os.path.join(args.preprocessed_dataset_path, "index.pkl")
@@ -38,7 +39,7 @@ if __name__ == "__main__":
         dataset_t_names = test["dataset_t_names"]
         dataset_t_years = test["dataset_t_years"]
 
-    print("Loading model...")
+    print("Loading filename: {}".format(args.model_filename))
     model = load_model(args.model_filename)
 
     print("Evaluating model...")

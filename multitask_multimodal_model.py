@@ -7,6 +7,7 @@ from keras.layers.recurrent import LSTM
 from keras.layers.wrappers import TimeDistributed
 from keras.models import Model
 from keras.regularizers import l2
+import tensorflow as tf
 
 
 class MultitaskMultimodalModel:
