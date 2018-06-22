@@ -59,14 +59,14 @@ class MultitaskLangModel:
         td_lstm = TimeDistributed(lstm_mod)
         res_td_lstm = td_lstm(res_emb)
 
-        td_dense0 = TimeDistributed(Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f))
-        drop_td_dense0 = Dropout(self._dropout)
-        l_td_dense0 = td_dense0(res_td_lstm)
-        drop_l_td_dense0 = drop_td_dense0(l_td_dense0)
+        td_dense_mapping = TimeDistributed(Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f))
+        drop_td_dense_mapping = Dropout(self._dropout)
+        l_td_dense_mapping = td_dense_mapping(res_td_lstm)
+        drop_l_td_dense_mapping = drop_td_dense_mapping(l_td_dense_mapping)
 
         td_dense = TimeDistributed(Dense(1024, W_regularizer=l2(self._l2_reg), activation=self._act_f))
         drop_td_dense = Dropout(self._dropout)
-        l_td_dense = td_dense(drop_l_td_dense0)
+        l_td_dense = td_dense(drop_l_td_dense_mapping)
         drop_l_td_dense = drop_td_dense(l_td_dense)
 
         td_dense2 = TimeDistributed(Dense(512, W_regularizer=l2(self._l2_reg), activation=self._act_f))
