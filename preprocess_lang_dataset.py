@@ -267,8 +267,8 @@ if __name__ == "__main__":
             "t_m_out": t_m_out,
             "t_q_out": t_q_out,
             "t_r_out": t_r_out,
-            "dataset_t_names": v_inp_names,
-            "dataset_t_years": v_inp_years
+            "dataset_t_names": t_inp_names,
+            "dataset_t_years": t_inp_years
         }, out_file)
 
     with open(os.path.join(args.output_path, "valid.pkl"), mode="wb") as out_file:
@@ -277,6 +277,6 @@ if __name__ == "__main__":
             "v_m_out": v_m_out,
             "v_q_out": v_q_out,
             "v_r_out": v_r_out,
-            "dataset_v_names": t_inp_names,
-            "dataset_v_years": t_inp_years
+            "dataset_v_names": v_inp_names,
+            "dataset_v_years": v_inp_years
         }, out_file)
