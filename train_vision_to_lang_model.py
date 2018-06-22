@@ -15,15 +15,17 @@ if __name__ == '__main__':
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     vision_weights_filename = "/mnt/povobackup/clic/sandro.pezzelle/model_weights_final/multi-task-prop/weight.best.hdf5"
     lang_weights_filename = "best_models/vision_to_lang_model-{epoch:02d}-{val_loss:.4f}-{val_pred1_loss:.4f}-{val_pred2_loss:.4f}-{val_pred3_loss:.4f}-{val_pred1_acc:.4f}-{val_pred2_acc:.4f}-{val_pred3_acc:.4f}.hdf5"
+    logging_filename = "best_models/train_vision_to_lang_model.log"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
     parser.add_argument("--vision_weights_filename", type=str, default=vision_weights_filename)
     parser.add_argument("--lang_weights_filename", type=str, default=lang_weights_filename)
+    parser.add_argument("--logging_filename", type=str, default=logging_filename)
     parser.add_argument("--num_epochs", type=int, default=100)
     parser.add_argument("--batch_size", type=int, default=32)
     args = parser.parse_args()
-    start_logger(os.path.join(lang_weights_filename.split("/")[0], "train_vision_to_lang_model.log"))
+    start_logger(args.logging_filename)
     atexit.register(stop_logger)
 
     index_filename = os.path.join(args.preprocessed_dataset_path, "index.pkl")
