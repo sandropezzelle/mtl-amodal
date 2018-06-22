@@ -2,12 +2,13 @@ import argparse
 import os
 import pickle
 
+import atexit
 import numpy as np
 from keras.callbacks import EarlyStopping
 
 import multitask_lang_model
 import multitask_vision_model
-from utils import MyModelCheckpoint
+from utils import MyModelCheckpoint, start_logger, stop_logger
 
 if __name__ == '__main__':
     preprocessed_dataset_path = "lang_dataset/"
@@ -22,6 +23,8 @@ if __name__ == '__main__':
     parser.add_argument("--num_epochs", type=int, default=100)
     parser.add_argument("--batch_size", type=int, default=32)
     args = parser.parse_args()
+    start_logger(lang_weights_filename.split("/")[0] + ".train_vision_to_lang_model.log")
+    atexit.register(stop_logger)
 
     index_filename = os.path.join(args.preprocessed_dataset_path, "index.pkl")
     print("Loading filename: {}".format(index_filename))
