@@ -1,9 +1,9 @@
+import sys
 import warnings
 
 import skimage
 import skimage.io
 import skimage.transform
-import sys
 from keras.callbacks import ModelCheckpoint
 
 
@@ -58,9 +58,6 @@ def read_qprobs(path):
             count += 1
 
     return ratios
-
-
-ù
 
 
 class Logger(object):
