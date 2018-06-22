@@ -83,7 +83,7 @@ if __name__ == "__main__":
         for i, scenario in enumerate(dataset_t):
             print("Processing scenario {}/{}".format(i, len(dataset_t)))
             formatted_names = ", ".join([name for name in dataset_t_names[i] if name != "#pad#"])
-            formatted_years = ", ".join(dataset_t_years[i])
+            formatted_years = ", ".join([year for year in dataset_t_years[i] if year != "#pad#"])
             formatted_t_m_out = id2m_out[tuple(t_m_out[i])]
             formatted_t_q_out = str(t_q_out[i])
             formatted_t_r_out = id2r_out[tuple(t_r_out[i])]
