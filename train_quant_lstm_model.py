@@ -17,7 +17,7 @@ if __name__ == "__main__":
     preprocesses the input,
     trains the model
     """
-    preprocessed_dataset_path = "lang_dataset/"
+    preprocessed_dataset_path = "lang_dataset2/"
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     weights_filename = "best_models/quant_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
     logging_filename = "best_models/train_quant_lstm_model.log"
