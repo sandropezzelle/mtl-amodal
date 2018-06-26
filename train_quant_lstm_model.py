@@ -39,6 +39,10 @@ if __name__ == "__main__":
         index = pickle.load(in_file)
         token2id = index["token2id"]
         id2token = index["id2token"]
+        m_out2id = index["m_out2id"]
+        id2m_out = index["id2m_out"]
+        r_out2id = index["r_out2id"]
+        id2r_out = index["id2r_out"]
 
     train_filename = os.path.join(args.preprocessed_dataset_path, "train.pkl")
     print("Loading filename: {}".format(train_filename))
@@ -48,15 +52,8 @@ if __name__ == "__main__":
         tr_m_out = train["tr_m_out"]
         tr_q_out = train["tr_q_out"]
         tr_r_out = train["tr_r_out"]
-
-    test_filename = os.path.join(args.preprocessed_dataset_path, "test.pkl")
-    print("Loading filename: {}".format(test_filename))
-    with open(os.path.join(args.preprocessed_dataset_path, "test.pkl"), mode="rb") as in_file:
-        test = pickle.load(in_file)
-        dataset_t = test["dataset_t"]
-        t_m_out = test["t_m_out"]
-        t_q_out = test["t_q_out"]
-        t_r_out = test["t_r_out"]
+        dataset_tr_names = train["dataset_tr_names"]
+        dataset_tr_years = train["dataset_tr_years"]
 
     valid_filename = os.path.join(args.preprocessed_dataset_path, "valid.pkl")
     print("Loading filename: {}".format(valid_filename))
@@ -66,6 +63,8 @@ if __name__ == "__main__":
         v_m_out = valid["v_m_out"]
         v_q_out = valid["v_q_out"]
         v_r_out = valid["v_r_out"]
+        dataset_v_names = valid["dataset_v_names"]
+        dataset_v_years = valid["dataset_v_years"]
 
     print("Loading filename: {}".format(args.embeddings_filename))
     embeddings_index = {}
