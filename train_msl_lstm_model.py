@@ -19,10 +19,12 @@ if __name__ == "__main__":
     preprocessed_dataset_path = "lang_dataset/"
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     weights_filename = "best_models/msl_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
+    logging_filename = "best_models/train_msl_lstm_model.log"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
     parser.add_argument("--weights_filename", type=str, default=weights_filename)
+    parser.add_argument("--logging_filename", type=str, default=logging_filename)
     parser.add_argument("--num_epochs", type=int, default=100)
     parser.add_argument("--batch_size", type=int, default=32)
     args = parser.parse_args()
