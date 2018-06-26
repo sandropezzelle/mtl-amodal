@@ -1,13 +1,11 @@
 import numpy as np
 from keras import optimizers
-from keras.layers import Input, Dense, Flatten, Dropout, Lambda
+from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers import LSTM, Embedding
 from keras.layers import Reshape
 from keras.layers.wrappers import TimeDistributed
 from keras.models import Model
 from keras.regularizers import l2
-from keras import backend as K
-
 
 
 class QuantLSTMModel:
@@ -38,19 +36,20 @@ class QuantLSTMModel:
         out_inc = model_inception(inp)
         out_res = Reshape((25,2048))(out_inc)
         """
-        # Sum of embeddings
         inp = Input(self._input_shape, name='lang_input')
         emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, trainable=True)
-        sum_dim1 = Lambda(lambda xin: K.sum(xin, axis=2))
+        lstm_mod = LSTM(300, activation=self._act_f)
+
         inp_res = Reshape((25 * 50,))(inp)
         emb_out = emb_mod(inp_res)
         res_emb = Reshape((25, 50, self._emb_dim))(emb_out)
-        res_sum_dim1 = sum_dim1(res_emb)
+        td_lstm = TimeDistributed(lstm_mod)
+        res_td_lstm = td_lstm(res_emb)
 
-        quant_flat = Flatten()(res_sum_dim1)
-        hidden_quant = Dense(512, activation=self._act_f, name='quant')(quant_flat)
-        # drop_hidden_quant = Dropout(self._dropout)(hidden_quant)
-        out_quant = Dense(self._q_classes, activation='softmax', name='pred2')(hidden_quant)
+        quant_flat = Flatten()(res_td_lstm)
+        hidden_quant = Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f, name='msl')(quant_flat)
+        drop_hidden_quant = Dropout(self._dropout)(hidden_quant)
+        out_quant = Dense(self._q_classes, activation='softmax', name='pred2')(drop_hidden_quant)
 
         model = Model(inputs=inp, outputs=out_quant)
         sgd = optimizers.SGD(lr=0.001)
