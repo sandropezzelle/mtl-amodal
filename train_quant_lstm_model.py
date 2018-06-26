@@ -65,23 +65,23 @@ if __name__ == "__main__":
         # dataset_v_names = valid["dataset_v_names"]
         # dataset_v_years = valid["dataset_v_years"]
 
-    # print("Loading filename: {}".format(args.embeddings_filename))
-    # embeddings_index = {}
-    # with open(args.embeddings_filename) as in_file:
-    #     for line in in_file:
-    #         values = line.split()
-    #         word = values[0]
-    #         coefs = np.asarray(values[1:], dtype='float32')
-    #         embeddings_index[word] = coefs
-    #
-    # embedding_matrix = np.zeros((len(token2id) + 1, 300))
-    # for word, i in token2id.items():
-    #     embedding_vector = embeddings_index.get(word)
-    #     if embedding_vector is not None:
-    #         embedding_matrix[i] = embedding_vector
+    print("Loading filename: {}".format(args.embeddings_filename))
+    embeddings_index = {}
+    with open(args.embeddings_filename) as in_file:
+        for line in in_file:
+            values = line.split()
+            word = values[0]
+            coefs = np.asarray(values[1:], dtype='float32')
+            embeddings_index[word] = coefs
+
+    embedding_matrix = np.zeros((len(token2id) + 1, 300))
+    for word, i in token2id.items():
+        embedding_vector = embeddings_index.get(word)
+        if embedding_vector is not None:
+            embedding_matrix[i] = embedding_vector
 
     print("Training model...")
-    model = quant_lstm_model.QuantLSTMModel(None, token2id).build()
+    model = quant_lstm_model.QuantLSTMModel(embedding_matrix, token2id).build()
     checkpoint = MyModelCheckpoint(weights_filename, monitor="val_loss", verbose=1, save_best_only=True, mode="min")
     early_stopping = EarlyStopping(monitor='val_loss', patience=3, mode='min')
     hist = model.fit(
