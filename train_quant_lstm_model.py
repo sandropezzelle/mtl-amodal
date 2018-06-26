@@ -2,11 +2,13 @@ import argparse
 import os
 import pickle
 
+import atexit
 import numpy as np
+from keras.callbacks import EarlyStopping
 
 import prop_lstm_model
 import quant_lstm_model
-from utils import MyModelCheckpoint
+from utils import MyModelCheckpoint, start_logger, stop_logger
 
 if __name__ == "__main__":
     """
@@ -19,13 +21,17 @@ if __name__ == "__main__":
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     weights_filename = "best_models/quant_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
     predictions_filename = "best_models/quant_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.predictions"
+    logging_filename = "best_models/train_quant_lstm_model.log"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
     parser.add_argument("--embeddings_filename", type=str, default=embeddings_filename)
     parser.add_argument("--weights_filename", type=str, default=weights_filename)
+    parser.add_argument("--logging_filename", type=str, default=logging_filename)
     parser.add_argument("--num_epochs", type=int, default=100)
     parser.add_argument("--batch_size", type=int, default=32)
     args = parser.parse_args()
+    start_logger(args.logging_filename)
+    atexit.register(stop_logger)
 
     index_filename = os.path.join(args.preprocessed_dataset_path, "index.pkl")
     print("Loading filename: {}".format(index_filename))
@@ -79,27 +85,12 @@ if __name__ == "__main__":
     print("Training model...")
     model = quant_lstm_model.QuantLSTMModel(embedding_matrix, token2id).build()
     checkpoint = MyModelCheckpoint(weights_filename, monitor="val_loss", verbose=1, save_best_only=True, mode="min")
+    early_stopping = EarlyStopping(monitor='val_loss', patience=3, mode='min')
     hist = model.fit(
         dataset_tr,
         tr_q_out,
         batch_size=args.batch_size,
         epochs=args.num_epochs,
         validation_data=(dataset_v, v_q_out),
-        callbacks=[checkpoint]
+        callbacks=[checkpoint, early_stopping]
     )
-
-    print("Evaluating model...")
-    best_model = quant_lstm_model.QuantLSTMModel(embedding_matrix, token2id).build()
-    best_model.load_weights(checkpoint.best_saved_filename)
-    scores = best_model.evaluate(dataset_t, t_q_out, batch_size=args.batch_size)
-    print("%s: %.4f%%" % (model.metrics_names[1], scores[1]))
-
-    probabilities = model.predict(dataset_t, batch_size=args.batch_size)
-    with open(predictions_filename, mode="w") as out_file:
-        for i in range(3400):
-            for j in range(9):
-                out_file.write(str(probabilities[i][j]) + '\t')
-            out_file.write('\n')
-            for j in range(9):
-                out_file.write(str(t_q_out[i][j]) + '\t')
-            out_file.write('\n')
