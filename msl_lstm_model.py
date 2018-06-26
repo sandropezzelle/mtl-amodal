@@ -53,5 +53,5 @@ class MSLLSTMModel:
 
         model = Model(inputs=inp, outputs=out_more)
         sgd = optimizers.SGD(lr=0.001)
-        model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
         return model
