@@ -20,7 +20,6 @@ if __name__ == "__main__":
     preprocessed_dataset_path = "lang_dataset/"
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     weights_filename = "best_models/quant_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
-    predictions_filename = "best_models/quant_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.predictions"
     logging_filename = "best_models/train_quant_lstm_model.log"
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocessed_dataset_path", type=str, default=preprocessed_dataset_path)
