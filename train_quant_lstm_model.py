@@ -90,5 +90,5 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         epochs=args.num_epochs,
         validation_data=(dataset_v, v_q_out),
-        callbacks=[checkpoint, early_stopping]
+        callbacks=[checkpoint]
     )
