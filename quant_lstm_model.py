@@ -6,6 +6,8 @@ from keras.layers import Reshape
 from keras.layers.wrappers import TimeDistributed
 from keras.models import Model
 from keras.regularizers import l2
+from keras import backend as K
+
 
 
 class QuantLSTMModel:
