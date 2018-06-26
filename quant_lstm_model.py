@@ -40,7 +40,7 @@ class QuantLSTMModel:
         """
         # Sum of embeddings
         inp = Input(self._input_shape, name='lang_input')
-        emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, weights=[self._embedding_matrix], trainable=False)
+        emb_mod = Embedding(len(self._token2id) + 1, self._emb_dim, trainable=True)
         sum_dim1 = Lambda(lambda xin: K.sum(xin, axis=2))
         inp_res = Reshape((25 * 50,))(inp)
         emb_out = emb_mod(inp_res)
