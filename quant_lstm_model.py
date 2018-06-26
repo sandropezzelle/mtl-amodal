@@ -47,7 +47,7 @@ class QuantLSTMModel:
         res_td_lstm = td_lstm(res_emb)
 
         quant_flat = Flatten()(res_td_lstm)
-        hidden_quant = Dense(2048, W_regularizer=l2(self._l2_reg), activation=self._act_f, name='msl')(quant_flat)
+        hidden_quant = Dense(128, W_regularizer=l2(self._l2_reg), activation=self._act_f, name='msl')(quant_flat)
         drop_hidden_quant = Dropout(self._dropout)(hidden_quant)
         out_quant = Dense(self._q_classes, activation='softmax', name='pred2')(drop_hidden_quant)
 
