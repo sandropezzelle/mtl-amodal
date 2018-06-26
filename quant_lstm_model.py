@@ -48,9 +48,9 @@ class QuantLSTMModel:
         res_sum_dim1 = sum_dim1(res_emb)
 
         quant_flat = Flatten()(res_sum_dim1)
-        hidden_quant = Dense(512, W_regularizer=l2(self._l2_reg), activation=self._act_f, name='quant')(quant_flat)
-        drop_hidden_quant = Dropout(self._dropout)(hidden_quant)
-        out_quant = Dense(self._q_classes, activation='softmax', name='pred2')(drop_hidden_quant)
+        hidden_quant = Dense(512, activation=self._act_f, name='quant')(quant_flat)
+        # drop_hidden_quant = Dropout(self._dropout)(hidden_quant)
+        out_quant = Dense(self._q_classes, activation='softmax', name='pred2')(hidden_quant)
 
         model = Model(inputs=inp, outputs=out_quant)
         sgd = optimizers.SGD(lr=0.001)
