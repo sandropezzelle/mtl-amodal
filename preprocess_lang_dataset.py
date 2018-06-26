@@ -164,6 +164,10 @@ if __name__ == "__main__":
     ratios = utils.read_qprobs(repository_path)
     create_ratio_dict(ratios)
 
+    print(ratios)
+    print(r_dict)
+    exit(0)
+
     print("Processing training set")
     tr_inp, tr_m_out, tr_q_out, tr_r_out, tr_inp_names, tr_inp_years = load_data(tr)
 
