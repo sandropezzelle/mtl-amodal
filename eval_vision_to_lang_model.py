@@ -53,6 +53,10 @@ if __name__ == "__main__":
     y_valarr_msl = np.argmax(t_m_out, axis=1)
     pd.crosstab(y_valarr_msl, y_pred_msl, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_msl"))
 
+    y_pred_quant = np.argmax(predictions[1], axis=1)
+    y_valarr_quant = np.argmax(t_q_out, axis=1)
+    pd.crosstab(y_valarr_quant, y_pred_quant, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_quant"))
+
     y_pred_prop = np.argmax(predictions[2], axis=1)
     y_valarr_prop = np.argmax(t_r_out, axis=1)
     pd.crosstab(y_valarr_prop, y_pred_prop, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_prop"))
