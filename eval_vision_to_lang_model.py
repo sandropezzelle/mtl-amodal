@@ -25,8 +25,10 @@ if __name__ == "__main__":
         id2token = index["id2token"]
         m_out2id = index["m_out2id"]
         id2m_out = index["id2m_out"]
+        simple_id2m_out = {np.argmax(x): y for x, y in id2m_out.items()}
         r_out2id = index["r_out2id"]
         id2r_out = index["id2r_out"]
+        simple_id2r_out = {np.argmax(x): y for x, y in id2r_out.items()}
 
     test_filename = os.path.join(args.preprocessed_dataset_path, "test.pkl")
     print("Loading filename: {}".format(test_filename))
@@ -50,11 +52,15 @@ if __name__ == "__main__":
     predictions = model.predict(dataset_t, batch_size=args.batch_size)
 
     y_pred_msl = np.argmax(predictions[0], axis=1)
+    y_pred_msl = [simple_id2m_out[x] for x in y_pred_msl]
     y_valarr_msl = np.argmax(t_m_out, axis=1)
+    y_valarr_msl = [simple_id2m_out[x] for x in y_valarr_msl]
     pd.crosstab(y_valarr_msl, y_pred_msl, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_msl"))
 
     y_pred_prop = np.argmax(predictions[2], axis=1)
+    y_pred_prop = [simple_id2r_out[x] for x in y_pred_prop]
     y_valarr_prop = np.argmax(t_r_out, axis=1)
+    y_valarr_prop = [simple_id2r_out[x] for x in y_valarr_prop]
     pd.crosstab(y_valarr_prop, y_pred_prop, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_prop"))
 
     with open(args.model_filename.replace(".hdf5", ".predictions_quant"), mode="w") as out_file:
