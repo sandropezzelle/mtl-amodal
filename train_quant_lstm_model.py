@@ -17,7 +17,7 @@ if __name__ == "__main__":
     preprocesses the input,
     trains the model
     """
-    preprocessed_dataset_path = "lang_dataset/"
+    preprocessed_dataset_path = "lang_dataset2/"
     embeddings_filename = "/mnt/povobackup/clic/sandro.pezzelle/corpus-and-vectors/GoogleNews-vectors-negative300.txt"
     weights_filename = "best_models/quant_lstm_model-{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}.hdf5"
     logging_filename = "best_models/train_quant_lstm_model.log"
@@ -38,10 +38,10 @@ if __name__ == "__main__":
         index = pickle.load(in_file)
         token2id = index["token2id"]
         id2token = index["id2token"]
-        m_out2id = index["m_out2id"]
-        id2m_out = index["id2m_out"]
-        r_out2id = index["r_out2id"]
-        id2r_out = index["id2r_out"]
+        # m_out2id = index["m_out2id"]
+        # id2m_out = index["id2m_out"]
+        # r_out2id = index["r_out2id"]
+        # id2r_out = index["id2r_out"]
 
     train_filename = os.path.join(args.preprocessed_dataset_path, "train.pkl")
     print("Loading filename: {}".format(train_filename))
@@ -51,8 +51,8 @@ if __name__ == "__main__":
         tr_m_out = train["tr_m_out"]
         tr_q_out = train["tr_q_out"]
         tr_r_out = train["tr_r_out"]
-        dataset_tr_names = train["dataset_tr_names"]
-        dataset_tr_years = train["dataset_tr_years"]
+        # dataset_tr_names = train["dataset_tr_names"]
+        # dataset_tr_years = train["dataset_tr_years"]
 
     valid_filename = os.path.join(args.preprocessed_dataset_path, "valid.pkl")
     print("Loading filename: {}".format(valid_filename))
@@ -62,8 +62,8 @@ if __name__ == "__main__":
         v_m_out = valid["v_m_out"]
         v_q_out = valid["v_q_out"]
         v_r_out = valid["v_r_out"]
-        dataset_v_names = valid["dataset_v_names"]
-        dataset_v_years = valid["dataset_v_years"]
+        # dataset_v_names = valid["dataset_v_names"]
+        # dataset_v_years = valid["dataset_v_years"]
 
     print("Loading filename: {}".format(args.embeddings_filename))
     embeddings_index = {}
@@ -90,5 +90,5 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         epochs=args.num_epochs,
         validation_data=(dataset_v, v_q_out),
-        callbacks=[checkpoint, early_stopping]
+        callbacks=[checkpoint]
     )
