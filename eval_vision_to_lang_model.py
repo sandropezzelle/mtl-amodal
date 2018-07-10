@@ -52,14 +52,10 @@ if __name__ == "__main__":
     predictions = model.predict(dataset_t, batch_size=args.batch_size)
 
     y_pred_msl = np.argmax(predictions[0], axis=1)
-    y_pred_msl = [simple_id2m_out[x] for x in y_pred_msl]
+    y_pred_msl = pd.Categorical([simple_id2m_out[x] for x in y_pred_msl])
     y_valarr_msl = np.argmax(t_m_out, axis=1)
-    y_valarr_msl = [simple_id2m_out[x] for x in y_valarr_msl]
+    y_valarr_msl = pd.Categorical([simple_id2m_out[x] for x in y_valarr_msl])
     pd.crosstab(y_valarr_msl, y_pred_msl, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_msl"))
-
-    y_pred_quant = np.argmax(predictions[1], axis=1)
-    y_valarr_quant = np.argmax(t_q_out, axis=1)
-    pd.crosstab(y_valarr_quant, y_pred_quant, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_quant"))
 
     y_pred_prop = np.argmax(predictions[2], axis=1)
     y_pred_prop = [simple_id2r_out[x] for x in y_pred_prop]
