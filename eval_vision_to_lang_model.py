@@ -58,9 +58,9 @@ if __name__ == "__main__":
     pd.crosstab(y_valarr_msl, y_pred_msl, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_msl"))
 
     y_pred_prop = np.argmax(predictions[2], axis=1)
-    y_pred_prop = [simple_id2r_out[x] for x in y_pred_prop]
+    y_pred_prop = pd.Categorical([simple_id2r_out[x] for x in y_pred_prop])
     y_valarr_prop = np.argmax(t_r_out, axis=1)
-    y_valarr_prop = [simple_id2r_out[x] for x in y_valarr_prop]
+    y_valarr_prop = pd.Categorical([simple_id2r_out[x] for x in y_valarr_prop])
     pd.crosstab(y_valarr_prop, y_pred_prop, margins=True).to_csv(args.model_filename.replace(".hdf5", ".confusion_prop"))
 
     with open(args.model_filename.replace(".hdf5", ".predictions_quant"), mode="w") as out_file:
